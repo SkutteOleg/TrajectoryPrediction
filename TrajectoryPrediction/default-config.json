@@ -1,0 +1,26 @@
+{
+  "enabled": true,
+  "settings": {
+    "Simulation Settings": {
+      "type": "separator"
+    },
+    "Seconds To Predict": 120,    
+    "High Precision Mode": true,
+    "Predict GravityVolume Intersections": true,
+    "Customization Settings": {
+      "type": "separator"
+    },
+    "Player Trajectory Color": "#00FFFFFF",
+    "Ship Trajectory Color": "#FFFF00FF",
+    "Scout Trajectory Color": "#FFFFFFFF",
+    "Performance Settings": {
+      "type": "separator"
+    },
+    "Multithreading": true,
+    "RAM To Allocate (Megabytes)": 256,
+    "Experimental Settings": {
+      "type": "separator"
+    },
+    "Parallelization": false
+  }
+}
