@@ -1,4 +1,4 @@
-![Logo](https://user-images.githubusercontent.com/45887963/202138974-7c1be1b3-a329-40b9-b9c7-ccd3a4be5dea.png)
+![Logo](https://user-images.githubusercontent.com/45887963/202493807-38fa0edc-bd89-4d3b-a6ad-31c7a55e0dcb.png)
 
 This is a mod for **Outer Wilds** which predicts and visualizes future trajectories of player, ship, and scout, in map view.
 
