@@ -5,6 +5,11 @@ This is a mod for **Outer Wilds** which predicts and visualizes future trajector
 ![Screenshot](https://user-images.githubusercontent.com/45887963/202139195-cc38666c-2c16-4875-ad94-7cadea7cc804.jpg)
 
 ## Installation
+### Easy installation
+- [Install the Outer Wilds Mod Manager](https://github.com/Raicuparta/ow-mod-manager#how-do-i-use-this)
+- Search for `Trajectory Prediction`  and install it
+
+### Manual Installation
 - [Install OWML](https://github.com/amazingalek/owml#installation)
 - [Download the latest release](https://github.com/SkutteOleg/TrajectoryPrediction/releases/latest)
 - Extract `OlegSkutte.TrajectoryPrediction` directory to `OWML/Mods` directory
