@@ -1,30 +1,21 @@
-﻿using System;
-using System.Linq;
-using System.Threading;
+﻿using System.Linq;
 using UnityEngine;
 
 namespace TrajectoryPrediction;
 
 public class TrajectoryVisualizer : MonoBehaviour
 {
-    public bool Busy { get; private set; }
-    private CanvasMapMarker _marker;
-    private MapMarker.MarkerType _markerType;
+    public bool Busy => _trajectory.Busy;
+    private ITrajectory _trajectory;
     private LineRenderer _lineRenderer;
-    private OWRigidbody _body;
-    private ForceDetector _forceDetector;
-    private Vector3[] _trajectory;
-    private Vector3[] _trajectoryCached;
     private float _timeSinceUpdate;
-    private Vector3 _framePosition;
-    private Vector3 _frameVelocity;
+    private bool _visible = true;
+    private Color _color = Color.white;
     private static readonly int MainTex = Shader.PropertyToID("_MainTex");
 
     private void Start()
     {
-        _marker = GetComponent<CanvasMapMarker>();
-        _body = _marker._rigidbodyTarget;
-        _forceDetector = _body.GetAttachedForceDetector();
+        _trajectory = GetComponent<ITrajectory>();
         _lineRenderer = gameObject.AddComponent<LineRenderer>();
         _lineRenderer.useWorldSpace = true;
         var material = new Material(Shader.Find("Outer Wilds/Effects/Orbit Line"));
@@ -32,21 +23,14 @@ public class TrajectoryVisualizer : MonoBehaviour
         _lineRenderer.material = material;
         _lineRenderer.textureMode = LineTextureMode.RepeatPerSegment;
         TrajectoryPrediction.AddVisualizer(this);
+        UpdateVisibility();
+        UpdateColor();
         ApplyConfig();
 
         GlobalMessenger.AddListener("EnterMapView", OnEnterMapView);
         GlobalMessenger.AddListener("ExitMapView", OnExitMapView);
         TrajectoryPrediction.OnConfigUpdate += ApplyConfig;
         TrajectoryPrediction.OnBeginFrame += BeginFrame;
-        TrajectoryPrediction.OnEndFrame += EndFrame;
-        _marker.OnMarkerChangeVisibility += SetVisibility;
-
-        if (_markerType == MapMarker.MarkerType.Player)
-        {
-            GlobalMessenger.AddListener("EnterShip", OnEnterShip);
-            GlobalMessenger.AddListener("ExitShip", OnExitShip);
-            OnEnterShip();
-        }
     }
 
     private void OnDestroy()
@@ -56,67 +40,50 @@ public class TrajectoryVisualizer : MonoBehaviour
         GlobalMessenger.RemoveListener("ExitMapView", OnExitMapView);
         TrajectoryPrediction.OnConfigUpdate -= ApplyConfig;
         TrajectoryPrediction.OnBeginFrame -= BeginFrame;
-        TrajectoryPrediction.OnEndFrame -= EndFrame;
-        _marker.OnMarkerChangeVisibility -= SetVisibility;
-
-        if (_markerType == MapMarker.MarkerType.Player)
-        {
-            GlobalMessenger.RemoveListener("EnterShip", OnEnterShip);
-            GlobalMessenger.RemoveListener("ExitShip", OnExitShip);
-        }
     }
 
-    internal void SetMarkerType(MapMarker.MarkerType markerType)
+    public void SetVisibility(bool value)
     {
-        _markerType = markerType;
+        _visible = value;
+        UpdateVisibility();
     }
 
-    private void SetVisibility(bool value)
+    private void UpdateVisibility()
     {
-        _lineRenderer.enabled = value;
+        if (!_lineRenderer) 
+            return;
+        
+        _lineRenderer.enabled = _visible;
+    }
+
+    public void SetColor(Color color)
+    {
+        _color = color;
+        UpdateColor();
+    }
+
+    private void UpdateColor()
+    {
+        if (!_lineRenderer) 
+            return;
+        
+        _lineRenderer.startColor = _color;
+        _lineRenderer.endColor = new Color(_color.r, _color.g, _color.b, 0);
     }
 
     private void ApplyConfig()
     {
-        _trajectory = new Vector3[TrajectoryPrediction.StepsToSimulate];
-        _trajectoryCached = new Vector3[TrajectoryPrediction.StepsToSimulate];
         _lineRenderer.positionCount = TrajectoryPrediction.SecondsToPredict;
-        Busy = false;
-        switch (_markerType)
-        {
-            case MapMarker.MarkerType.Player:
-                _lineRenderer.startColor = TrajectoryPrediction.PlayerTrajectoryColor;
-                _lineRenderer.endColor = new Color(TrajectoryPrediction.PlayerTrajectoryColor.r, TrajectoryPrediction.PlayerTrajectoryColor.g, TrajectoryPrediction.PlayerTrajectoryColor.b, 0);
-                break;
-            case MapMarker.MarkerType.Ship:
-                _lineRenderer.startColor = TrajectoryPrediction.ShipTrajectoryColor;
-                _lineRenderer.endColor = new Color(TrajectoryPrediction.ShipTrajectoryColor.r, TrajectoryPrediction.ShipTrajectoryColor.g, TrajectoryPrediction.ShipTrajectoryColor.b, 0);
-                break;
-            case MapMarker.MarkerType.Probe:
-                _lineRenderer.startColor = TrajectoryPrediction.ScoutTrajectoryColor;
-                _lineRenderer.endColor = new Color(TrajectoryPrediction.ScoutTrajectoryColor.r, TrajectoryPrediction.ScoutTrajectoryColor.g, TrajectoryPrediction.ScoutTrajectoryColor.b, 0);
-                break;
-            default:
-                throw new ArgumentOutOfRangeException(nameof(_markerType));
-        }
     }
 
     private void BeginFrame()
     {
-        _framePosition = _body.GetPosition();
-        _frameVelocity = _body.GetVelocity();
         _timeSinceUpdate = 0;
-    }
-
-    private void EndFrame()
-    {
-        _trajectory.CopyTo(_trajectoryCached);
     }
 
     private void OnEnterMapView()
     {
-        _lineRenderer.enabled = _marker.IsVisible();
-        Busy = false;
+        _lineRenderer.enabled = _visible;
     }
 
     private void OnExitMapView()
@@ -124,50 +91,12 @@ public class TrajectoryVisualizer : MonoBehaviour
         _lineRenderer.enabled = false;
     }
 
-    private void OnEnterShip()
-    {
-        _body = Locator.GetShipBody();
-        _forceDetector = _body.GetAttachedForceDetector();
-    }
-
-    private void OnExitShip()
-    {
-        _body = Locator.GetPlayerBody();
-        _forceDetector = _body.GetAttachedForceDetector();
-    }
-
     public void Visualize()
     {
         if (!_lineRenderer.enabled)
             return;
 
-        if (_forceDetector._activeVolumes.Count == 0 || _forceDetector._activeVolumes.All(volume => volume is not GravityVolume))
-        {
-            if (TrajectoryPrediction.Multithreading)
-            {
-                Busy = true;
-                new Thread(() =>
-                {
-                    for (var i = 0; i < _trajectory.Length; i++)
-                        _trajectory[i] = Vector3.zero;
-
-                    Busy = false;
-                }).Start();
-            }
-            else
-                for (var i = 0; i < _trajectory.Length; i++)
-                    _trajectory[i] = _framePosition;
-        }
-        else
-        {
-            if (TrajectoryPrediction.Multithreading)
-            {
-                Busy = true;
-                TrajectoryPrediction.SimulateTrajectoryMultiThreaded(_body, _framePosition, _frameVelocity, _trajectory, Locator.GetReferenceFrame()?.GetAstroObject(), true, TrajectoryPrediction.PredictGravityVolumeIntersections, () => Busy = false);
-            }
-            else
-                TrajectoryPrediction.SimulateTrajectory(_body, _framePosition, _frameVelocity, _trajectory, Locator.GetReferenceFrame()?.GetAstroObject(), true, TrajectoryPrediction.PredictGravityVolumeIntersections);
-        }
+        _trajectory.UpdateTrajectory();
     }
 
     private void Update()
@@ -181,18 +110,18 @@ public class TrajectoryVisualizer : MonoBehaviour
 
         for (var i = 0; i < _lineRenderer.positionCount; i++)
         {
-            int step = TrajectoryPrediction.HighPrecisionMode ? Mathf.Min((int)((i + _timeSinceUpdate) / Time.fixedDeltaTime), _trajectoryCached.Length - 1) : i;
+            int step = TrajectoryPrediction.HighPrecisionMode ? Mathf.Min((int)((i + _timeSinceUpdate) / Time.fixedDeltaTime), _trajectory.TrajectoryCache.Length - 1) : i;
 
-            if (_trajectoryCached[step] == Vector3.zero)
+            if (_trajectory.TrajectoryCache[step] == Vector3.zero)
             {
                 _lineRenderer.SetPosition(i, _lineRenderer.GetPosition(Mathf.Max(0, i - 1)));
                 continue;
             }
 
-            var position = _trajectoryCached[step] - referenceFrame.GetTrajectory().GetFuturePositionCached(step) + referenceFrame.GetOWRigidbody().GetPosition();
+            var position = _trajectory.TrajectoryCache[step] - referenceFrame.GetTrajectory().GetFuturePositionCached(step) + referenceFrame.GetOWRigidbody().GetPosition();
             _lineRenderer.SetPosition(i, position);
         }
 
-        _lineRenderer.widthMultiplier = Vector3.Distance(_body.GetPosition(), Locator.GetActiveCamera().transform.position) / 500f;
+        _lineRenderer.widthMultiplier = Vector3.Distance(_trajectory.GetCurrentPosition(), Locator.GetActiveCamera().transform.position) / 500f;
     }
 }

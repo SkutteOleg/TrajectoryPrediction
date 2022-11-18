@@ -17,18 +17,20 @@ This is a mod for **Outer Wilds** which predicts and visualizes future trajector
 
 ## Settings
 ![Settings](https://user-images.githubusercontent.com/45887963/202139282-0c378a33-0c12-4907-99e4-c98604dcabe1.jpg)
-##### Simulation Settings
+#### Simulation Settings
 - **Seconds To Predict** - Determines how far into the future trajectories are predicted in seconds. Higher values take longer to compute.
 - **High Precision Mode** - Toggles simulation time step between 1 second and `Time.fixedDeltaTime`. High Precision Mode takes 60 times longer to compute.
 - **Predict GravityVolume Intersections** - Future trajectories may escape or enter gravity volumes of different celestial bodies. This setting toggles detection of which gravity volumes will be active at any given future time step. Takes longer to compute and allocates more memory.
-##### Customization Settings
+#### Customization Settings
 - **Player Trajectory Color** - Hex RGBA color of trajectory line of the player.
 - **Ship Trajectory Color** - Hex RGBA color of trajectory line of the ship.
 - **Scout Trajectory Color** - Hex RGBA color of trajectory line of the scout.
-##### Performance Settings
+- **Display Planet Trajectories** - Determines whether planet trajectories should be displayed.
+- **Planet Trajectory Color** - Hex RGBA color of trajectory lines of the planets.
+#### Performance Settings
 - **Multithreading** - Shifts computations to a separate thread.
 - **RAM To Allocate (Megabytes)** - Allocates roughly specified amount of RAM to reduce the frequency of GC lag spikes.
-##### Experimental Settings
+#### Experimental Settings
 - **Parallelization** - Runs simulation of all celestial bodies in parallel. Speeds up computation but makes results inaccurate.
 
 ## Limitations / Things to Improve

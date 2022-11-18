@@ -13,6 +13,8 @@
     "Player Trajectory Color": "#00FFFFFF",
     "Ship Trajectory Color": "#FFFF00FF",
     "Scout Trajectory Color": "#FFFFFFFF",
+    "Display Planet Trajectories": false,
+    "Planet Trajectories Color": "#FFFFFFFF",
     "Performance Settings": {
       "type": "separator"
     },

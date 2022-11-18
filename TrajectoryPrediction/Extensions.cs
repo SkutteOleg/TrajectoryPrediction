@@ -12,12 +12,12 @@ public static class Extensions
         return delta / distance * gravityMagnitude;
     }
 
-    public static AstroObjectTrajectory GetTrajectory(this GravityVolume gravityVolume)
+    public static ITrajectory GetTrajectory(this GravityVolume gravityVolume)
     {
         return TrajectoryPrediction.GravityVolumeToTrajectoryMap.ContainsKey(gravityVolume) ? TrajectoryPrediction.GravityVolumeToTrajectoryMap[gravityVolume] : null;
     }
 
-    public static AstroObjectTrajectory GetTrajectory(this AstroObject astroObject)
+    public static ITrajectory GetTrajectory(this AstroObject astroObject)
     {
         return TrajectoryPrediction.AstroObjectToTrajectoryMap.ContainsKey(astroObject) ? TrajectoryPrediction.AstroObjectToTrajectoryMap[astroObject] : null;
     }

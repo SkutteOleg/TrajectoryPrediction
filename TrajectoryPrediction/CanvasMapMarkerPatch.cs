@@ -11,6 +11,6 @@ public class CanvasMapMarkerPatch
     private static void MapMarker_InitMarker(MapMarker __instance)
     {
         if (__instance._markerType is MapMarker.MarkerType.Ship or MapMarker.MarkerType.Probe or MapMarker.MarkerType.Player) 
-            __instance._canvasMarker.gameObject.AddComponent<TrajectoryVisualizer>().SetMarkerType(__instance._markerType);
+            __instance._canvasMarker.gameObject.AddComponent<MapMarkerTrajectory>().SetMarkerType(__instance._markerType);
     }
 }

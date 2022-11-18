@@ -20,16 +20,20 @@ public class TrajectoryPrediction : ModBehaviour
     public static Color PlayerTrajectoryColor { get; private set; }
     public static Color ShipTrajectoryColor { get; private set; }
     public static Color ScoutTrajectoryColor { get; private set; }
+    public static bool DisplayPlanetTrajectories { get; private set; }
+    public static Color PlanetTrajectoriesColor { get; private set; }
+    
     public static bool Multithreading { get; private set; }
     public static int RAMToAllocate { get; private set; }
     public static bool Parallelization { get; private set; }
-
+    internal static Thread MainThread { get; private set; }
+    
     public static event Action OnConfigUpdate;
     public static event Action OnBeginFrame;
     public static event Action OnEndFrame;
 
-    internal static readonly Dictionary<AstroObject, AstroObjectTrajectory> AstroObjectToTrajectoryMap = new();
-    internal static readonly Dictionary<GravityVolume, AstroObjectTrajectory> GravityVolumeToTrajectoryMap = new();
+    internal static readonly Dictionary<AstroObject, ITrajectory> AstroObjectToTrajectoryMap = new();
+    internal static readonly Dictionary<GravityVolume, ITrajectory> GravityVolumeToTrajectoryMap = new();
     private static readonly List<AstroObjectTrajectory> AstroObjectTrajectories = new();
     private static readonly List<TrajectoryVisualizer> TrajectoryVisualizers = new();
     private static readonly List<OWRigidbody> BusyBodies = new();
@@ -39,6 +43,7 @@ public class TrajectoryPrediction : ModBehaviour
 
     private void Awake()
     {
+        MainThread = Thread.CurrentThread;
         Harmony.CreateAndPatchAll(Assembly.GetExecutingAssembly());
         GlobalMessenger.AddListener("EnterMapView", OnEnterMapView);
         GlobalMessenger.AddListener("ExitMapView", OnExitMapView);
@@ -69,6 +74,8 @@ public class TrajectoryPrediction : ModBehaviour
         PlayerTrajectoryColor = ColorUtility.TryParseHtmlString(config.GetSettingsValue<string>("Player Trajectory Color"), out var playerTrajectoryColor) ? playerTrajectoryColor : Color.cyan;
         ShipTrajectoryColor = ColorUtility.TryParseHtmlString(config.GetSettingsValue<string>("Ship Trajectory Color"), out var shipTrajectoryColor) ? shipTrajectoryColor : Color.yellow;
         ScoutTrajectoryColor = ColorUtility.TryParseHtmlString(config.GetSettingsValue<string>("Scout Trajectory Color"), out var scoutTrajectoryColor) ? scoutTrajectoryColor : Color.white;
+        DisplayPlanetTrajectories = config.GetSettingsValue<bool>("Display Planet Trajectories");
+        PlanetTrajectoriesColor = ColorUtility.TryParseHtmlString(config.GetSettingsValue<string>("Planet Trajectories Color"), out var planetTrajectoryColor) ? planetTrajectoryColor : Color.white;
         Multithreading = config.GetSettingsValue<bool>("Multithreading");
         RAMToAllocate = Math.Max(config.GetSettingsValue<int>("RAM To Allocate (Megabytes)"), 0);
         Parallelization = config.GetSettingsValue<bool>("Parallelization");
@@ -154,8 +161,8 @@ public class TrajectoryPrediction : ModBehaviour
 
         if (predictVolumeIntersections)
         {
-            foreach (var astroObject in AstroObjectTrajectories)
-                astroObject.UpdateTrajectory();
+            foreach (var astroObjectTrajectory in AstroObjectTrajectories)
+                astroObjectTrajectory.UpdateTrajectory();
         }
         else
         {
