@@ -60,16 +60,18 @@ jobs:
               uses: "actions/setup-dotnet@v3"
 
             - name: Remove .csproj.user
-              run: rm -f ${{ env.PROJ_NAME }}/${{ env.PROJ_NAME }}.csproj.user
+              run: rm -${{ env.PROJ_NAME }}/${{ env.PROJ_NAME }}.csproj.user
+              continue-on-error: true
 
             - name: Build Mod
               run: dotnet build -c Release
+              working-directory: ${{ env.PROJ_NAME }}
 
             - name: Upload Artifact
               uses: "actions/upload-artifact@v3"
               with:
                 name: "${{ env.PROJ_USERNAME }}.${{ env.PROJ_NAME }}"
-                path: "${{ env.PROJ_NAME }}/bin/Release"
+                path: "${{ env.PROJ_USERNAME }}.${{ env.PROJ_NAME }}"
 
             - name: Zip For Release
               run: 7z a ${{ env.PROJ_USERNAME }}.${{ env.PROJ_NAME }}.zip ${{ env.PROJ_NAME }}/bin/Release/**

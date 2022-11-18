@@ -18,6 +18,7 @@ public class TrajectoryVisualizer : MonoBehaviour
     private float _timeSinceUpdate;
     private Vector3 _framePosition;
     private Vector3 _frameVelocity;
+    private static readonly int MainTex = Shader.PropertyToID("_MainTex");
 
     private void Start()
     {
@@ -26,9 +27,10 @@ public class TrajectoryVisualizer : MonoBehaviour
         _forceDetector = _body.GetAttachedForceDetector();
         _lineRenderer = gameObject.AddComponent<LineRenderer>();
         _lineRenderer.useWorldSpace = true;
-        var mapSatelliteLine = FindObjectOfType<MapSatelliteOrbitLine>().GetComponent<LineRenderer>();
-        _lineRenderer.material = mapSatelliteLine.material;
-        _lineRenderer.textureMode = mapSatelliteLine.textureMode;
+        var material = new Material(Shader.Find("Outer Wilds/Effects/Orbit Line"));
+        material.SetTexture(MainTex, Resources.FindObjectsOfTypeAll<Texture2D>().First(texture => texture.name == "Effects_SPA_OrbitLine_Dotted_d"));
+        _lineRenderer.material = material;
+        _lineRenderer.textureMode = LineTextureMode.RepeatPerSegment;
         TrajectoryPrediction.AddVisualizer(this);
         ApplyConfig();
 
