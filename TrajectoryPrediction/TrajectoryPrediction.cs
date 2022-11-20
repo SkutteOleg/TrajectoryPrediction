@@ -17,14 +17,14 @@ public class TrajectoryPrediction : ModBehaviour
     public static int StepsToSimulate { get; private set; }
     public static bool HighPrecisionMode { get; private set; }
     public static bool PredictGravityVolumeIntersections { get; private set; }
+    public static bool Multithreading { get; private set; }
+    
     public static Color PlayerTrajectoryColor { get; private set; }
     public static Color ShipTrajectoryColor { get; private set; }
     public static Color ScoutTrajectoryColor { get; private set; }
     public static bool DisplayPlanetTrajectories { get; private set; }
     public static Color PlanetTrajectoriesColor { get; private set; }
-    
-    public static bool Multithreading { get; private set; }
-    public static int RAMToAllocate { get; private set; }
+
     public static bool Parallelization { get; private set; }
     internal static Thread MainThread { get; private set; }
     
@@ -39,7 +39,6 @@ public class TrajectoryPrediction : ModBehaviour
     private static readonly List<OWRigidbody> BusyBodies = new();
     private const float MemoryFootprint = 0.3f;
     private static bool _active;
-    private static int _gcHack;
 
     private void Awake()
     {
@@ -77,7 +76,6 @@ public class TrajectoryPrediction : ModBehaviour
         DisplayPlanetTrajectories = config.GetSettingsValue<bool>("Display Planet Trajectories");
         PlanetTrajectoriesColor = ColorUtility.TryParseHtmlString(config.GetSettingsValue<string>("Planet Trajectories Color"), out var planetTrajectoryColor) ? planetTrajectoryColor : Color.white;
         Multithreading = config.GetSettingsValue<bool>("Multithreading");
-        RAMToAllocate = Math.Max(config.GetSettingsValue<int>("RAM To Allocate (Megabytes)"), 0);
         Parallelization = config.GetSettingsValue<bool>("Parallelization");
 
         BusyBodies.Clear();
@@ -112,19 +110,11 @@ public class TrajectoryPrediction : ModBehaviour
     private static void BeginFrame()
     {
         OnBeginFrame?.Invoke();
-
-        if (_gcHack < RAMToAllocate / MemoryFootprint)
-            GarbageCollector.GCMode = GarbageCollector.Mode.Disabled;
     }
 
     private static void EndFrame()
     {
         OnEndFrame?.Invoke();
-
-        if (_gcHack < RAMToAllocate / MemoryFootprint)
-            _gcHack++;
-        else if (GarbageCollector.GCMode == GarbageCollector.Mode.Disabled)
-            GarbageCollector.GCMode = GarbageCollector.Mode.Enabled;
     }
 
     public static void SimulateTrajectoryMultiThreaded(OWRigidbody body, Vector3 startingPosition, Vector3 startingVelocity, Vector3[] trajectory, AstroObject referenceAstroObject = null, bool stopOnCollision = false, bool predictVolumeIntersections = false, Action onExit = null)

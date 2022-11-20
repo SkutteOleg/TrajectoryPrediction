@@ -7,6 +7,7 @@
     "Seconds To Predict": 120,    
     "High Precision Mode": true,
     "Predict GravityVolume Intersections": true,
+    "Multithreading": true,
     "Customization Settings": {
       "type": "separator"
     },
@@ -15,11 +16,6 @@
     "Scout Trajectory Color": "#FFFFFFFF",
     "Display Planet Trajectories": false,
     "Planet Trajectories Color": "#FFFFFFFF",
-    "Performance Settings": {
-      "type": "separator"
-    },
-    "Multithreading": true,
-    "RAM To Allocate (Megabytes)": 256,
     "Experimental Settings": {
       "type": "separator"
     },
