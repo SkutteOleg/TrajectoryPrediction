@@ -26,12 +26,14 @@ _Trajectory path is drawn relative to selected celestial body._
 - **High Precision Mode** - Toggles simulation time step between 1 second and `Time.fixedDeltaTime`. High Precision Mode takes 60 times longer to compute.
 - **Predict GravityVolume Intersections** - Future trajectories may escape or enter gravity volumes of different celestial bodies. This setting toggles detection of which gravity volumes will be active at any given future time step. Takes longer to compute and allocates more memory.
 - **Multithreading** - Shifts computations to a separate thread.
+
 ### Customization Settings
 - **Player Trajectory Color** - Hex RGBA color of trajectory line of the player.
 - **Ship Trajectory Color** - Hex RGBA color of trajectory line of the ship.
 - **Scout Trajectory Color** - Hex RGBA color of trajectory line of the scout.
 - **Display Planet Trajectories** - Determines whether planet trajectories should be displayed.
 - **Planet Trajectory Color** - Hex RGBA color of trajectory lines of the planets.
+
 ### Experimental Settings
 - **Parallelization** - Runs simulation of all celestial bodies in parallel. Speeds up computation but makes results inaccurate.
 
