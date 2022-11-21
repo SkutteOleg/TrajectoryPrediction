@@ -26,7 +26,6 @@ public class TrajectoryPrediction : ModBehaviour
     public static Color PlanetTrajectoriesColor { get; private set; }
 
     public static bool Parallelization { get; private set; }
-    internal static Thread MainThread { get; private set; }
     
     public static event Action OnConfigUpdate;
     public static event Action OnBeginFrame;
@@ -42,7 +41,6 @@ public class TrajectoryPrediction : ModBehaviour
 
     private void Awake()
     {
-        MainThread = Thread.CurrentThread;
         Harmony.CreateAndPatchAll(Assembly.GetExecutingAssembly());
         GlobalMessenger.AddListener("EnterMapView", OnEnterMapView);
         GlobalMessenger.AddListener("ExitMapView", OnExitMapView);
@@ -95,8 +93,11 @@ public class TrajectoryPrediction : ModBehaviour
 
             EndFrame();
             BeginFrame();
-            foreach (var visualizer in TrajectoryVisualizers)
-                visualizer.Visualize();
+            new Thread(() =>
+            {
+                foreach (var visualizer in TrajectoryVisualizers)
+                    visualizer.Visualize();
+            }).Start();
         }
         else
         {

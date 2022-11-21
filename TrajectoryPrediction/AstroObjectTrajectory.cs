@@ -104,13 +104,17 @@ public class AstroObjectTrajectory : MonoBehaviour, ITrajectory
         }
         else
         {
-            if (TrajectoryPrediction.Parallelization || TrajectoryPrediction.Multithreading && Thread.CurrentThread == TrajectoryPrediction.MainThread)
+            if (TrajectoryPrediction.Parallelization)
             {
                 Busy = true;
                 TrajectoryPrediction.SimulateTrajectoryMultiThreaded(_body, _framePosition, _frameVelocity, Trajectory, null, false, false, () => Busy = false);
             }
             else
+            {
+                Busy = true;
                 TrajectoryPrediction.SimulateTrajectory(_body, _framePosition, _frameVelocity, Trajectory);
+                Busy = false;
+            }
         }
     }
 

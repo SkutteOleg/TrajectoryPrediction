@@ -23,7 +23,7 @@ public class MapMarkerTrajectory : MonoBehaviour, ITrajectory
     {
         _marker = GetComponent<CanvasMapMarker>();
         _body = _marker._rigidbodyTarget;
-        
+
         if (!_body)
             return;
 
@@ -119,7 +119,7 @@ public class MapMarkerTrajectory : MonoBehaviour, ITrajectory
             return;
 
         _updatedThisFrame = true;
-        
+
         if (_forceDetector._activeVolumes.Count == 0 || _forceDetector._activeVolumes.All(volume => volume is not GravityVolume))
         {
             if (TrajectoryPrediction.Multithreading)
@@ -139,13 +139,17 @@ public class MapMarkerTrajectory : MonoBehaviour, ITrajectory
         }
         else
         {
-            if (TrajectoryPrediction.Multithreading)
+            if (TrajectoryPrediction.Parallelization)
             {
                 Busy = true;
                 TrajectoryPrediction.SimulateTrajectoryMultiThreaded(_body, _framePosition, _frameVelocity, Trajectory, Locator.GetReferenceFrame()?.GetAstroObject(), true, TrajectoryPrediction.PredictGravityVolumeIntersections, () => Busy = false);
             }
             else
+            {
+                Busy = true;
                 TrajectoryPrediction.SimulateTrajectory(_body, _framePosition, _frameVelocity, Trajectory, Locator.GetReferenceFrame()?.GetAstroObject(), true, TrajectoryPrediction.PredictGravityVolumeIntersections);
+                Busy = false;
+            }
         }
     }
 
