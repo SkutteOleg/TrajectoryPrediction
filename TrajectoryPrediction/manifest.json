@@ -5,10 +5,10 @@
   "name": "Trajectory Prediction",
   "warning": {
     "title": "Incremental GC is recommended",
-    "body": "Trajectory Prediction uses a lot of RAM and may cause lag spikes if incremental GC is disabled.\nYou can enable incremental GC in the mod loader settings."
+    "body": "Trajectory Prediction uses a lot of RAM and may cause lag spikes if incremental GC is disabled.\nYou can enable incremental GC in the mod manager settings."
   },
   "uniqueName": "OlegSkutte.TrajectoryPrediction",
-  "version": "0.6.3",
+  "version": "0.6.4",
   "owmlVersion": "2.7.5",
   "dependencies": []
 }

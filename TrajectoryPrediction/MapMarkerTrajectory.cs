@@ -23,6 +23,10 @@ public class MapMarkerTrajectory : MonoBehaviour, ITrajectory
     {
         _marker = GetComponent<CanvasMapMarker>();
         _body = _marker._rigidbodyTarget;
+        
+        if (!_body)
+            return;
+
         _forceDetector = _body.GetAttachedForceDetector();
         _visualizer = gameObject.AddComponent<TrajectoryVisualizer>();
         ApplyConfig();
