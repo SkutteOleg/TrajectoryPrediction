@@ -29,6 +29,15 @@ public class MapMarkerTrajectory : MonoBehaviour, ITrajectory
 
         _forceDetector = _body.GetAttachedForceDetector();
         _visualizer = gameObject.AddComponent<TrajectoryVisualizer>();
+        
+        Enable();
+    }
+
+    private void Enable()
+    {
+        if (!_marker)
+            return;
+
         ApplyConfig();
 
         TrajectoryPrediction.OnConfigUpdate += ApplyConfig;
@@ -44,7 +53,12 @@ public class MapMarkerTrajectory : MonoBehaviour, ITrajectory
         }
     }
 
-    private void OnDestroy()
+    private void OnEnable()
+    {
+        Enable();
+    }
+
+    private void OnDisable()
     {
         TrajectoryPrediction.OnConfigUpdate -= ApplyConfig;
         TrajectoryPrediction.OnBeginFrame -= BeginFrame;

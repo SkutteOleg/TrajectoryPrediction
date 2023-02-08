@@ -23,17 +23,25 @@ public class AstroObjectTrajectory : MonoBehaviour, ITrajectory
         _astroObject = GetComponent<AstroObject>();
         _body = _astroObject.GetOWRigidbody();
         _gravityVolume = _astroObject.GetGravityVolume();
-        
+
         if (_gravityVolume)
             _visualizer = gameObject.AddComponent<TrajectoryVisualizer>();
         
+        Enable();
+    }
+
+    private void Enable()
+    {
+        if (!_astroObject)
+            return;
+
         TrajectoryPrediction.AstroObjectToTrajectoryMap[_astroObject] = this;
         if (_gravityVolume)
         {
             if (_gravityVolume.GetOWTriggerVolume().GetShape())
                 _triggerRadius = _gravityVolume.GetOWTriggerVolume().GetShape().localBounds.radius;
             if (_gravityVolume.GetOWTriggerVolume().GetOWCollider())
-                _triggerRadius = ((SphereCollider)_gravityVolume.GetOWTriggerVolume().GetOWCollider().GetCollider()).radius;
+                _triggerRadius = ((SphereCollider) _gravityVolume.GetOWTriggerVolume().GetOWCollider().GetCollider()).radius;
 
             TrajectoryPrediction.GravityVolumeToTrajectoryMap[_gravityVolume] = this;
             TrajectoryPrediction.AddTrajectory(this);
@@ -46,7 +54,12 @@ public class AstroObjectTrajectory : MonoBehaviour, ITrajectory
         TrajectoryPrediction.OnEndFrame += EndFrame;
     }
 
-    private void OnDestroy()
+    private void OnEnable()
+    {
+        Enable();
+    }
+
+    private void OnDisable()
     {
         TrajectoryPrediction.AstroObjectToTrajectoryMap.Remove(_astroObject);
         if (_gravityVolume)

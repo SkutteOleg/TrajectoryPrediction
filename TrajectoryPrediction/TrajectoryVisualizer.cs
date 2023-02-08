@@ -22,6 +22,15 @@ public class TrajectoryVisualizer : MonoBehaviour
         material.SetTexture(MainTex, Resources.FindObjectsOfTypeAll<Texture2D>().First(texture => texture.name == "Effects_SPA_OrbitLine_Dotted_d"));
         _lineRenderer.material = material;
         _lineRenderer.textureMode = LineTextureMode.RepeatPerSegment;
+        
+        Enable();
+    }
+
+    private void Enable()
+    {
+        if (_trajectory == null)
+            return;
+
         TrajectoryPrediction.AddVisualizer(this);
         UpdateVisibility();
         UpdateColor();
@@ -33,7 +42,12 @@ public class TrajectoryVisualizer : MonoBehaviour
         TrajectoryPrediction.OnBeginFrame += BeginFrame;
     }
 
-    private void OnDestroy()
+    private void OnEnable()
+    {
+        Enable();
+    }
+
+    private void OnDisable()
     {
         TrajectoryPrediction.RemoveVisualizer(this);
         GlobalMessenger.RemoveListener("EnterMapView", OnEnterMapView);
@@ -50,9 +64,9 @@ public class TrajectoryVisualizer : MonoBehaviour
 
     private void UpdateVisibility()
     {
-        if (!_lineRenderer) 
+        if (!_lineRenderer)
             return;
-        
+
         _lineRenderer.enabled = _visible;
     }
 
@@ -64,9 +78,9 @@ public class TrajectoryVisualizer : MonoBehaviour
 
     private void UpdateColor()
     {
-        if (!_lineRenderer) 
+        if (!_lineRenderer)
             return;
-        
+
         _lineRenderer.startColor = _color;
         _lineRenderer.endColor = new Color(_color.r, _color.g, _color.b, 0);
     }
@@ -110,7 +124,7 @@ public class TrajectoryVisualizer : MonoBehaviour
 
         for (var i = 0; i < _lineRenderer.positionCount; i++)
         {
-            int step = TrajectoryPrediction.HighPrecisionMode ? Mathf.Min((int)((i + _timeSinceUpdate) / Time.fixedDeltaTime), _trajectory.TrajectoryCache.Length - 1) : i;
+            var step = TrajectoryPrediction.HighPrecisionMode ? Mathf.Min((int) ((i + _timeSinceUpdate) / Time.fixedDeltaTime), _trajectory.TrajectoryCache.Length - 1) : i;
 
             if (_trajectory.TrajectoryCache[step] == Vector3.zero)
             {
