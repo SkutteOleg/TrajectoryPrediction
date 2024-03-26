@@ -1,4 +1,5 @@
 ![Logo](https://user-images.githubusercontent.com/45887963/202493807-38fa0edc-bd89-4d3b-a6ad-31c7a55e0dcb.png)
+[![Install Trajectory Prediction](https://img.shields.io/endpoint?url=https%3A%2F%2Fouterwildsmods.com%2Fapi%2FOlegSkutte.TrajectoryPrediction%2Fbadge.json)](https://outerwildsmods.com/mods/trajectoryprediction/)
 
 This is a mod for **Outer Wilds** which predicts and visualizes future trajectories of player, ship, and scout, in map view.
 
